@@ -38,26 +38,31 @@ HOMEWORK_STATUSES = {
 
 class TokenNotFoundError(Exception):
     """At least one token is missing in env."""
+
     pass
 
 
 class NoHomeworksError(Exception):
     """The list of homeworks is empty."""
+
     pass
 
 
 class NoReplyFromApiError(Exception):
     """Yandex Praktikum is not responding."""
+
     pass
 
 
 def send_message(bot, message):
     """This function sends messages to telegram."""
+
     bot.send_message(TELEGRAM_CHAT_ID, message)
 
 
 def get_api_answer(current_timestamp):
     """This function receives reply from Yandex Praktikum."""
+
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp}
     response = requests.get(ENDPOINT, headers=HEADERS, params=params)
@@ -71,6 +76,7 @@ def get_api_answer(current_timestamp):
 def check_response(response):
     """This function checks whether the response from Yandex Praktikum
     was valid."""
+
     if response == {}:
         raise NoHomeworksError('No homeworks found')
     elif response['homeworks'] is None:
@@ -84,6 +90,7 @@ def check_response(response):
 
 def parse_status(homework):
     """This function obtains specific values of the homework."""
+
     if homework != []:
         homework_name = homework.get('homework_name')
         homework_status = homework.get('status')
@@ -97,6 +104,7 @@ def parse_status(homework):
 
 def check_tokens():
     """This function checks whether all tokens are present."""
+
     tokens_list = [PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]
     for token in tokens_list:
         if not token:
@@ -107,6 +115,7 @@ def check_tokens():
 
 def main():
     """Main functions are called from here."""
+
     if not check_tokens():
         logger.critical('No tokens found')
 
