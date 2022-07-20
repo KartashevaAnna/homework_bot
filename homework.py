@@ -72,8 +72,7 @@ def get_api_answer(current_timestamp):
 
 
 def check_response(response):
-    """This function checks whether the response from Yandex Praktikum
-    was valid."""
+    """Checking whether the response from Yandex Praktikum is valid."""
     if response == {}:
         raise NoHomeworksError('No homeworks found')
     elif response['homeworks'] is None:
@@ -107,12 +106,10 @@ def check_tokens():
         return True
 
 
-
 def main():
     """Main functions are called from here."""
     if not check_tokens():
         logger.critical('No tokens found')
-
 
     while True:
         try:
