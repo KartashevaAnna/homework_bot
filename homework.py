@@ -40,7 +40,7 @@ def get_api_answer(current_timestamp):
     response = requests.get(ENDPOINT, headers=HEADERS, params=params)
     if response.status_code != HTTPStatus.OK:
         raise LoggedOnlyError
-        logger.error(f'Yandex Praktikum is not responding')
+        logger.error('Yandex Praktikum is not responding')
     homework = response.json()
     return (homework)
 
@@ -51,17 +51,15 @@ def check_response(response):
         raise NoHomeworksError('No homeworks found')
     elif response['homeworks'] is None:
         raise LoggedOnlyError
-        logger.error(f'No "homeworks" found as key')
+        logger.error('No "homeworks" found as key')
     elif type(response.get('homeworks')) != list:
         raise LoggedOnlyError
-        logger.error(f'We expect a list of homeworks')
+        logger.error('We expect a list of homeworks')
     homework = response.get('homeworks')
     return homework
 
 
-def send_error_message(error):
-    message = f'Сбой в работе программы: {error}'
-    bot.send_message(message)
+
 
 def parse_status(homework):
     """This function obtains specific values of the homework."""
@@ -103,6 +101,10 @@ def main():
     if not check_tokens():
         logger.critical('No tokens found')
         sys.exit()
+
+    def send_error_message(error):
+        message = f'Сбой в работе программы: {error}'
+        bot.send_message(message)
 
     while True:
 
