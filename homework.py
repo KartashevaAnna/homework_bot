@@ -66,15 +66,12 @@ def parse_status(homework):
     if not list:
         raise NoHomeworksError
         logging.error('The list of homeworks is empty')
-        bot.send_error_message(error)
 
     homework_name = homework.get('homework_name')
     homework_status = homework.get('status')
     verdict = REVIEWER_REPLY[homework_status]
     fine = f'Изменился статус проверки работы "{homework_name}". {verdict}'
     return fine
-
-
 
 
 def check_tokens():
