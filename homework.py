@@ -96,10 +96,13 @@ def main():
     if not check_tokens():
         logger.critical('No tokens found')
         sys.exit()
+    previous_messages = []
 
     def send_error_message(error):
         message = f'Сбой в работе программы: {error}'
-        bot.send_message(message)
+        if message != previous_messages[:-1]:
+            bot.send_message(message)
+            previous_messages.append(message)
 
     while True:
 
