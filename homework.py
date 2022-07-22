@@ -9,7 +9,7 @@ import requests
 import telegram
 from dotenv import load_dotenv
 
-from exceptions import *
+from exceptions import LoggedOnlyError, NoHomeworksError
 
 load_dotenv()
 
