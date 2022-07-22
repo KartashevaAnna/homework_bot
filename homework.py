@@ -59,8 +59,6 @@ def check_response(response):
     return homework
 
 
-
-
 def parse_status(homework):
     """This function obtains specific values of the homework."""
     if not list:
