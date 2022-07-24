@@ -7,9 +7,10 @@ from logging import StreamHandler
 
 import requests
 import telegram
+from telegram.error import TelegramError
 from dotenv import load_dotenv
 
-from exceptions import LoggedOnlyError, NoHomeworksError
+from exceptions import LoggedOnlyError, NoHomeworksError, ApiNotRespondingError
 
 load_dotenv()
 
@@ -29,8 +30,11 @@ logger = logging.getLogger(__name__)
 
 def send_message(bot, message):
     """This function sends messages to telegram."""
-    message_sent = bot.send_message(TELEGRAM_CHAT_ID, message)
-    logger.info(f'Message {message_sent} sent')
+    try:
+        message_sent = bot.send_message(TELEGRAM_CHAT_ID, message)
+        logger.info(f'Message {message_sent} sent')
+    except TelegramError as error:
+        raise LoggedOnlyError(f'Failed to send message, reason: {error}')
 
 
 def get_api_answer(current_timestamp):
@@ -39,21 +43,25 @@ def get_api_answer(current_timestamp):
     params = {'from_date': timestamp}
     response = requests.get(ENDPOINT, headers=HEADERS, params=params)
     if response.status_code != HTTPStatus.OK:
-        raise LoggedOnlyError
-        logger.error('Yandex Praktikum is not responding')
+        raise ApiNotRespondingError
     homework = response.json()
     return (homework)
 
 
 def check_response(response):
     """Checking whether the response from Yandex Praktikum is valid."""
-    if response == {}:
+    if not response:
         raise NoHomeworksError('No homeworks found')
     elif response['homeworks'] is None:
-        raise LoggedOnlyError
+        raise LoggedOnlyError(
+            f'response["homeworks"] is {response["homeworks"]}'
+        )
         logger.error('No "homeworks" found as key')
     elif type(response.get('homeworks')) != list:
-        raise LoggedOnlyError
+        raise LoggedOnlyError(
+            f'type('
+            f'response.get("homeworks")) is {type(response.get("homeworks"))}'
+        )
         logger.error('We expect a list of homeworks')
     homework = response.get('homeworks')
     return homework
@@ -68,8 +76,7 @@ def parse_status(homework):
     homework_name = homework.get('homework_name')
     homework_status = homework.get('status')
     verdict = REVIEWER_REPLY[homework_status]
-    fine = f'Изменился статус проверки работы "{homework_name}". {verdict}'
-    return fine
+    return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
 def check_tokens():
@@ -96,13 +103,20 @@ def main():
     if not check_tokens():
         logger.critical('No tokens found')
         sys.exit()
+
     previous_messages = []
+
+    def clear_messages(previous_messages):
+        if len(previous_messages) > 3:
+            del previous_messages[:-1]
+        return previous_messages
 
     def send_error_message(error):
         message = f'Сбой в работе программы: {error}'
-        if message != previous_messages[:-1]:
+        if message != previous_messages[-1]:
             bot.send_message(message)
             previous_messages.append(message)
+            clear_messages(previous_messages)
 
     while True:
 
@@ -110,23 +124,15 @@ def main():
             current_timestamp = int(time.time())
             response = get_api_answer(current_timestamp)
             check_response(response)
+            current_timestamp = response.get('current_date', current_timestamp)
+            send_message(bot, parse_status(
+                check_response(get_api_answer(current_timestamp)))
+                         )
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logging.error(message)
-            logging.error(error, exc_info=True)
-            if error == LoggedOnlyError:
+            if error != LoggedOnlyError:
                 send_error_message(error)
-        else:
-            current_timestamp = response.get('current_date', current_timestamp)
-
-            try:
-                send_message(
-                    bot, parse_status(
-                        check_response(get_api_answer(current_timestamp))
-                    )
-                )
-            except Exception as error:
-                logger.error(f'Failed to send message, reason: {error}')
         finally:
             time.sleep(RETRY_TIME)
 
