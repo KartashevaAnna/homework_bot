@@ -128,11 +128,11 @@ def main():
             send_message(bot, parse_status(
                 check_response(get_api_answer(current_timestamp)))
                          )
-        except Exception as error:
+        except LoggedOnlyError as error:
             message = f'Сбой в работе программы: {error}'
             logging.error(message)
-            if error != LoggedOnlyError:
-                send_error_message(error)
+        except Exception as error:
+            send_error_message(error)
         finally:
             time.sleep(RETRY_TIME)
 
