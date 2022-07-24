@@ -125,9 +125,10 @@ def main():
             response = get_api_answer(current_timestamp)
             check_response(response)
             current_timestamp = response.get('current_date', current_timestamp)
-            send_message(bot, parse_status(
-                check_response(get_api_answer(current_timestamp)))
-                         )
+            send_message(
+                bot,
+                parse_status(check_response(get_api_answer(current_timestamp)))
+            )
         except LoggedOnlyError as error:
             message = f'Сбой в работе программы: {error}'
             logging.error(message)
