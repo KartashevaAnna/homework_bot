@@ -113,7 +113,7 @@ def main():
             return previous_messages.pop()
 
     def send_error_message(error):
-        """Sending details of errors occurred to telegram. to telegram"""
+        """Sending details of errors occurred to telegram."""
         message = f'Сбой в работе программы: {error}'
         if message != previous_messages[-1]:
             bot.send_message(message)
