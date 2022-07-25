@@ -108,10 +108,12 @@ def main():
     previous_messages = []
 
     def clear_messages(previous_messages):
+        """Cleaning memory."""
         if len(previous_messages) > 2:
             return previous_messages.pop()
 
     def send_error_message(error):
+        """Sending details of errors occurred to telegram. to telegram"""
         message = f'Сбой в работе программы: {error}'
         if message != previous_messages[-1]:
             bot.send_message(message)
