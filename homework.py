@@ -43,24 +43,25 @@ def get_api_answer(current_timestamp):
     params = {'from_date': timestamp}
     response = requests.get(ENDPOINT, headers=HEADERS, params=params)
     if response.status_code != HTTPStatus.OK:
-        raise ApiNotRespondingError
+        raise ApiNotRespondingError(f'response code is {response.status_code}')
     homework = response.json()
-    return (homework)
+    return homework
 
 
 def check_response(response):
     """Checking whether the response from Yandex Praktikum is valid."""
     if not response:
         raise NoHomeworksError('No homeworks found')
-    elif response['homeworks'] is None:
+    if response['homeworks'] is None:
         raise LoggedOnlyError(
             f'response["homeworks"] is {response["homeworks"]}'
         )
         logger.error('No "homeworks" found as key')
-    elif type(response.get('homeworks')) != list:
+    if type(response.get('homeworks')[0]) != dict:
         raise LoggedOnlyError(
             f'type('
-            f'response.get("homeworks")) is {type(response.get("homeworks"))}'
+            f'response.get("homeworks")) is {type(response.get("homeworks"))},'
+            f' while dict is expected'
         )
         logger.error('We expect a list of homeworks')
     homework = response.get('homeworks')
@@ -107,9 +108,8 @@ def main():
     previous_messages = []
 
     def clear_messages(previous_messages):
-        if len(previous_messages) > 3:
-            del previous_messages[:-1]
-        return previous_messages
+        if len(previous_messages) > 2:
+            return previous_messages.pop()
 
     def send_error_message(error):
         message = f'Сбой в работе программы: {error}'

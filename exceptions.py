@@ -1,7 +1,7 @@
 class LoggedOnlyError(Exception):
     """Error only logged, no message sent to the user."""
 
-pass
+    pass
 
 
 class NoHomeworksError(Exception):
