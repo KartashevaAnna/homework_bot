@@ -102,7 +102,6 @@ def main():
     )
     handler.setFormatter(formatter)
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    bot.send_message(TELEGRAM_CHAT_ID, 'Hello from Heroku!')
     if not check_tokens():
         logger.critical('No tokens found')
         sys.exit()
