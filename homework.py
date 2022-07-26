@@ -56,11 +56,15 @@ def check_response(response):
         raise LoggedOnlyError(
             f'response["homeworks"] is {response["homeworks"]}'
         )
+    if not isinstance(response.get('homeworks'), list):
+        raise LoggedOnlyError(
+            'response["homeworks"] must be a list, '
+            f'got {type(response.get("homeworks"))} instead.')
+
     if not isinstance(response.get('homeworks')[0], dict):
         raise LoggedOnlyError(
-            'type('
-            f'response.get("homeworks")) is {type(response.get("homeworks"))},'
-            ' while dict is expected'
+            f'response.get("homeworks") must be a dict, '
+            f'got {type(response.get("homeworks")[0])} instead.'
         )
     homework = response.get('homeworks')
     return homework
