@@ -56,14 +56,12 @@ def check_response(response):
         raise LoggedOnlyError(
             f'response["homeworks"] is {response["homeworks"]}'
         )
-        logger.error('No "homeworks" found as key')
-    if type(response.get('homeworks')[0]) != dict:
+    if not isinstance(response.get('homeworks')[0], dict):
         raise LoggedOnlyError(
-            f'type('
+            'type('
             f'response.get("homeworks")) is {type(response.get("homeworks"))},'
-            f' while dict is expected'
+            ' while dict is expected'
         )
-        logger.error('We expect a list of homeworks')
     homework = response.get('homeworks')
     return homework
 
@@ -71,8 +69,7 @@ def check_response(response):
 def parse_status(homework):
     """This function obtains specific values of the homework."""
     if not list:
-        raise NoHomeworksError
-        logging.error('The list of homeworks is empty')
+        raise NoHomeworksError('The list of homeworks is empty')
 
     homework_name = homework.get('homework_name')
     homework_status = homework.get('status')
@@ -101,6 +98,7 @@ def main():
     )
     handler.setFormatter(formatter)
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
+    bot.send_message(TELEGRAM_CHAT_ID, 'Hello from Heroku!')
     if not check_tokens():
         logger.critical('No tokens found')
         sys.exit()
@@ -116,7 +114,7 @@ def main():
         """Sending details of errors occurred to telegram."""
         message = f'Сбой в работе программы: {error}'
         if message != previous_messages[-1]:
-            bot.send_message(message)
+            bot.send_message(TELEGRAM_CHAT_ID, message)
             previous_messages.append(message)
             clear_messages(previous_messages)
 
@@ -127,14 +125,15 @@ def main():
             response = get_api_answer(current_timestamp)
             check_response(response)
             current_timestamp = response.get('current_date', current_timestamp)
-            send_message(
-                bot,
+            bot.send_message(
+                TELEGRAM_CHAT_ID,
                 parse_status(check_response(get_api_answer(current_timestamp)))
             )
         except LoggedOnlyError as error:
             message = f'Сбой в работе программы: {error}'
             logging.error(message)
         except Exception as error:
+            logging.error(error)
             send_error_message(error)
         finally:
             time.sleep(RETRY_TIME)

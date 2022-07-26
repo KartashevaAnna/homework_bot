@@ -9,6 +9,7 @@ class NoHomeworksError(Exception):
 
     pass
 
+
 class ApiNotRespondingError(Exception):
     """API did not respond."""
 
