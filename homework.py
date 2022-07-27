@@ -121,6 +121,7 @@ def main():
             clear_messages(previous_messages)
 
     def get_checked_answer(current_timestamp):
+        """Enabling first functions in main."""
         response = get_api_answer(current_timestamp)
         homeworks = check_response(response)
         homework = homeworks[0]
