@@ -114,13 +114,20 @@ def main():
         if len(previous_messages) > 2:
             return previous_messages.pop()
 
-    def send_error_message(error):
-        """Sending details of errors occurred to telegram."""
-        message = f'Сбой в работе программы: {error}'
+    def check_previous_messages(message):
+        """Checking whether the same message has not been already sent
+         and clearing memory."""
         if message != previous_messages[-1]:
+            print(f'!!!!!!!{previous_messages}')
             bot.send_message(TELEGRAM_CHAT_ID, message)
             previous_messages.append(message)
             clear_messages(previous_messages)
+
+
+    def send_error_message(error):
+        """Sending details of errors occurred to telegram."""
+        message = f'Сбой в работе программы: {error}'
+        check_previous_messages(message)
 
     def get_checked_answer(current_timestamp):
         response = get_api_answer(current_timestamp)
@@ -136,11 +143,8 @@ def main():
             response, homework = get_checked_answer(current_timestamp)
             current_timestamp = response.get('current_date', current_timestamp)
             response, homework = get_checked_answer(current_timestamp)
-            clean_response = parse_status(homework)
-            bot.send_message(
-                TELEGRAM_CHAT_ID,
-                clean_response
-            )
+            message = parse_status(homework)
+            check_previous_messages(message)
         except LoggedOnlyError as error:
             message = f'Сбой в работе программы: {error}'
             logging.error(message)
