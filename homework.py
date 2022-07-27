@@ -101,10 +101,11 @@ def main():
     )
     handler.setFormatter(formatter)
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    bot.send_message(TELEGRAM_CHAT_ID, 'Deployed on Heroku')
     if not check_tokens():
         logger.critical('No tokens found')
         sys.exit()
+
+    bot.send_message(TELEGRAM_CHAT_ID, 'Deployed on Heroku')
 
     previous_messages = []
 
