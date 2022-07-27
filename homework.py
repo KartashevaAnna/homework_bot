@@ -12,6 +12,29 @@ from dotenv import load_dotenv
 
 from exceptions import LoggedOnlyError, NoHomeworksError, ApiNotRespondingError
 
+my_homeworks ={
+"homeworks":[
+{
+"id":124,
+"status":"rejected",
+"homework_name":"username__hw_python_oop.zip",
+"reviewer_comment":"Код не по PEP8, нужно исправить",
+"date_updated":"2020-02-13T16:42:47Z",
+"lesson_name":"Итоговый проект"
+},
+{
+"id":123,
+"status":"approved",
+"homework_name":"username__hw_test.zip",
+"reviewer_comment":"Всё нравится",
+"date_updated":"2020-02-11T14:40:57Z",
+"lesson_name":"Тестовый проект"
+},
+],
+"current_date":1581604970
+}
+
+
 load_dotenv()
 
 PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
@@ -67,6 +90,7 @@ def check_response(response):
             f'got {type(response.get("homeworks")[0])} instead.'
         )
     homework = response.get('homeworks')
+    print(homework)
     return homework
 
 
@@ -120,6 +144,7 @@ def main():
             bot.send_message(TELEGRAM_CHAT_ID, message)
             previous_messages.append(message)
             clear_messages(previous_messages)
+        bot.send_message(TELEGRAM_CHAT_ID, 'Hello from Heroku')
 
     while True:
 
