@@ -105,8 +105,6 @@ def main():
         logger.critical('No tokens found')
         sys.exit()
 
-    bot.send_message(TELEGRAM_CHAT_ID, 'Deployed on Heroku')
-
     previous_messages = []
 
     def clear_messages(previous_messages):
