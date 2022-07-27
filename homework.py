@@ -112,20 +112,13 @@ def main():
         if len(previous_messages) > 1:
             return previous_messages.pop()
 
-    def check_previous_messages(message):
-        """Checking whether the same message has not been already sent
-         and clearing memory."""
-        if message != previous_messages[-1]:
-            print(f'!!!!!!!{previous_messages}')
-            bot.send_message(TELEGRAM_CHAT_ID, message)
-            previous_messages.append(message)
-            clear_messages(previous_messages)
-
-
     def send_error_message(error):
         """Sending details of errors occurred to telegram."""
         message = f'Сбой в работе программы: {error}'
-        check_previous_messages(message)
+        if message != previous_messages[-1]:
+            bot.send_message(TELEGRAM_CHAT_ID, message)
+            previous_messages.append(message)
+            clear_messages(previous_messages)
 
     def get_checked_answer(current_timestamp):
         response = get_api_answer(current_timestamp)
@@ -136,22 +129,16 @@ def main():
     while True:
 
         try:
-            # current_timestamp = int(time.time())
-            current_timestamp = 0
+            current_timestamp = int(time.time())
             response, homework = get_checked_answer(current_timestamp)
-            # current_timestamp = response.get('current_date', current_timestamp)
-            # response, homework = get_checked_answer(current_timestamp)
+            current_timestamp = response.get('current_date', current_timestamp)
+            response, homework = get_checked_answer(current_timestamp)
             message = parse_status(homework)
-            print(previous_messages)
-            # bot.send_message(TELEGRAM_CHAT_ID, message)
             previous_messages.append(message)
-            previous_messages.append(message)
-            previous_messages.append(message)
-            previous_messages.append(message)
-            check_previous_messages(message)
-            print(previous_messages)
+            if message != previous_messages[-1]:
+                previous_messages.append(message)
             clear_messages(previous_messages)
-            print(previous_messages)
+
         except LoggedOnlyError as error:
             message = f'Сбой в работе программы: {error}'
             logging.error(message)
