@@ -109,7 +109,7 @@ def main():
 
     def clear_messages(previous_messages):
         """Cleaning memory."""
-        if len(previous_messages) > 2:
+        if len(previous_messages) > 1:
             return previous_messages.pop()
 
     def check_previous_messages(message):
@@ -131,18 +131,27 @@ def main():
         response = get_api_answer(current_timestamp)
         homeworks = check_response(response)
         homework = homeworks[0]
-        clean_response = parse_status(homework)
         return response, homework
 
     while True:
 
         try:
-            current_timestamp = int(time.time())
+            # current_timestamp = int(time.time())
+            current_timestamp = 0
             response, homework = get_checked_answer(current_timestamp)
-            current_timestamp = response.get('current_date', current_timestamp)
-            response, homework = get_checked_answer(current_timestamp)
+            # current_timestamp = response.get('current_date', current_timestamp)
+            # response, homework = get_checked_answer(current_timestamp)
             message = parse_status(homework)
+            print(previous_messages)
+            # bot.send_message(TELEGRAM_CHAT_ID, message)
+            previous_messages.append(message)
+            previous_messages.append(message)
+            previous_messages.append(message)
+            previous_messages.append(message)
             check_previous_messages(message)
+            print(previous_messages)
+            clear_messages(previous_messages)
+            print(previous_messages)
         except LoggedOnlyError as error:
             message = f'Сбой в работе программы: {error}'
             logging.error(message)
