@@ -12,29 +12,6 @@ from dotenv import load_dotenv
 
 from exceptions import LoggedOnlyError, NoHomeworksError, ApiNotRespondingError
 
-my_homeworks ={
-"homeworks":[
-{
-"id":124,
-"status":"rejected",
-"homework_name":"username__hw_python_oop.zip",
-"reviewer_comment":"Код не по PEP8, нужно исправить",
-"date_updated":"2020-02-13T16:42:47Z",
-"lesson_name":"Итоговый проект"
-},
-{
-"id":123,
-"status":"approved",
-"homework_name":"username__hw_test.zip",
-"reviewer_comment":"Всё нравится",
-"date_updated":"2020-02-11T14:40:57Z",
-"lesson_name":"Тестовый проект"
-},
-],
-"current_date":1581604970
-}
-
-
 load_dotenv()
 
 PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
@@ -62,7 +39,7 @@ def send_message(bot, message):
 
 def get_api_answer(current_timestamp):
     """This function receives reply from Yandex Praktikum."""
-    timestamp = current_timestamp or int(time.time())
+    timestamp = current_timestamp
     params = {'from_date': timestamp}
     response = requests.get(ENDPOINT, headers=HEADERS, params=params)
     if response.status_code != HTTPStatus.OK:
@@ -90,7 +67,6 @@ def check_response(response):
             f'got {type(response.get("homeworks")[0])} instead.'
         )
     homework = response.get('homeworks')
-    print(homework)
     return homework
 
 
@@ -98,7 +74,6 @@ def parse_status(homework):
     """This function obtains specific values of the homework."""
     if not list:
         raise NoHomeworksError('The list of homeworks is empty')
-
     homework_name = homework.get('homework_name')
     homework_status = homework.get('status')
     verdict = REVIEWER_REPLY[homework_status]
@@ -126,10 +101,9 @@ def main():
     )
     handler.setFormatter(formatter)
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    bot.send_message(TELEGRAM_CHAT_ID, 'Hello from Heroku again!')
+    bot.send_message(TELEGRAM_CHAT_ID, 'Deployed on Heroku')
     if not check_tokens():
         logger.critical('No tokens found')
-        bot.send_message(TELEGRAM_CHAT_ID, 'One of the tokens is missing!')
         sys.exit()
 
     previous_messages = []
@@ -147,16 +121,24 @@ def main():
             previous_messages.append(message)
             clear_messages(previous_messages)
 
+    def get_checked_answer(current_timestamp):
+        response = get_api_answer(current_timestamp)
+        homeworks = check_response(response)
+        homework = homeworks[0]
+        clean_response = parse_status(homework)
+        return response, homework
+
     while True:
 
         try:
             current_timestamp = int(time.time())
-            response = get_api_answer(current_timestamp)
-            check_response(response)
+            response, homework = get_checked_answer(current_timestamp)
             current_timestamp = response.get('current_date', current_timestamp)
+            response, homework = get_checked_answer(current_timestamp)
+            clean_response = parse_status(homework)
             bot.send_message(
                 TELEGRAM_CHAT_ID,
-                parse_status(check_response(get_api_answer(current_timestamp)))
+                clean_response
             )
         except LoggedOnlyError as error:
             message = f'Сбой в работе программы: {error}'
