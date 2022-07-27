@@ -129,6 +129,7 @@ def main():
     bot.send_message(TELEGRAM_CHAT_ID, 'Hello from Heroku again!')
     if not check_tokens():
         logger.critical('No tokens found')
+        bot.send_message(TELEGRAM_CHAT_ID, 'One of the tokens is missing!')
         sys.exit()
 
     previous_messages = []
