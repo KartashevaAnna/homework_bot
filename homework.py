@@ -127,12 +127,15 @@ def main():
         homework = homeworks[0]
         return response, homework
 
+    current_timestamp = int(time.time())
+
     while True:
 
         try:
-            current_timestamp = int(time.time())
+            current_timestamp = current_timestamp or int(time.time())
             response, homework = get_checked_answer(current_timestamp)
             message = parse_status(homework)
+            current_timestamp = response.get('current_date')
             if not previous_messages:
                 bot.send_message(TELEGRAM_CHAT_ID, message)
             if message != previous_messages[-1]:
