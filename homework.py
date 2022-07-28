@@ -110,7 +110,7 @@ def main():
     def clear_messages(previous_messages):
         """Cleaning memory."""
         if len(previous_messages) > 1:
-            return previous_messages.pop()
+            return previous_messages.pop(0)
 
     def send_error_message(error):
         """Sending details of errors occurred to telegram."""
@@ -132,13 +132,14 @@ def main():
         try:
             current_timestamp = int(time.time())
             response, homework = get_checked_answer(current_timestamp)
-            current_timestamp = response.get('current_date', current_timestamp)
-            response, homework = get_checked_answer(current_timestamp)
             message = parse_status(homework)
-            previous_messages.append(message)
+            if not previous_messages:
+                bot.send_message(TELEGRAM_CHAT_ID, message)
             if message != previous_messages[-1]:
+                bot.send_message(TELEGRAM_CHAT_ID, message)
                 previous_messages.append(message)
             clear_messages(previous_messages)
+            print(previous_messages)
 
         except LoggedOnlyError as error:
             message = f'Сбой в работе программы: {error}'
