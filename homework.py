@@ -139,8 +139,6 @@ def main():
                 bot.send_message(TELEGRAM_CHAT_ID, message)
                 previous_messages.append(message)
             clear_messages(previous_messages)
-            print(previous_messages)
-
         except LoggedOnlyError as error:
             message = f'Сбой в работе программы: {error}'
             logging.error(message)
