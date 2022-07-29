@@ -52,24 +52,24 @@ def check_response(response):
     """Checking whether the response from Yandex Praktikum is valid."""
     if not response:
         raise NoHomeworksError('No homeworks found')
-    if response['homeworks'] is None:
+    homework = response['homeworks']
+    if homework is None:
         raise LoggedOnlyError(
             f'response["homeworks"] is {response["homeworks"]}'
         )
-    if not response['homeworks']:
+    if not homework:
         raise NoHomeworksError(
             'NoHomeworksError: response["homeworks"] is empty'
         )
-    if not isinstance(response.get('homeworks'), list):
+    if not isinstance(homework, list):
         raise NoHomeworksError(
             'response["homeworks"] must be a list, '
-            f'got {type(response.get("homeworks"))} instead.')
-    if not isinstance(response.get('homeworks')[0], dict):
+            f'got {type(response["homeworks"])} instead.')
+    if not isinstance(homework[0], dict):
         raise LoggedOnlyError(
             f'response.get("homeworks") must be a dict, '
-            f'got {type(response.get("homeworks")[0])} instead.'
+            f'got {type(homework[0])} instead.'
         )
-    homework = response.get('homeworks')
     return homework
 
 
