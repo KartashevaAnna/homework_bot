@@ -56,11 +56,14 @@ def check_response(response):
         raise LoggedOnlyError(
             f'response["homeworks"] is {response["homeworks"]}'
         )
+    if not response['homeworks']:
+        raise NoHomeworksError(
+            'NoHomeworksError: response["homeworks"] is empty'
+        )
     if not isinstance(response.get('homeworks'), list):
-        raise LoggedOnlyError(
+        raise NoHomeworksError(
             'response["homeworks"] must be a list, '
             f'got {type(response.get("homeworks"))} instead.')
-
     if not isinstance(response.get('homeworks')[0], dict):
         raise LoggedOnlyError(
             f'response.get("homeworks") must be a dict, '
@@ -142,6 +145,8 @@ def main():
                 bot.send_message(TELEGRAM_CHAT_ID, message)
                 previous_messages.append(message)
             clear_messages(previous_messages)
+        except NoHomeworksError as error:
+            logging.debug(error)
         except LoggedOnlyError as error:
             message = f'Сбой в работе программы: {error}'
             logging.error(message)
