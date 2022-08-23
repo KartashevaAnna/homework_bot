@@ -120,7 +120,6 @@ def main():
         message = f'Сбой в работе программы: {error}'
         if previous_messages:
             if message != previous_messages[-1]:
-                print(previous_messages[-1])
                 bot.send_message(TELEGRAM_CHAT_ID, message)
                 previous_messages.append(message)
                 clear_messages(previous_messages)
