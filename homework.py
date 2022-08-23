@@ -118,10 +118,14 @@ def main():
     def send_error_message(error):
         """Sending details of errors occurred to telegram."""
         message = f'Сбой в работе программы: {error}'
-        if message != previous_messages[-1]:
-            bot.send_message(TELEGRAM_CHAT_ID, message)
-            previous_messages.append(message)
-            clear_messages(previous_messages)
+        if previous_messages:
+            if message != previous_messages[-1]:
+                print(previous_messages[-1])
+                bot.send_message(TELEGRAM_CHAT_ID, message)
+                previous_messages.append(message)
+                clear_messages(previous_messages)
+        bot.send_message(TELEGRAM_CHAT_ID, message)
+        previous_messages.append(message)
 
     def get_checked_answer(current_timestamp):
         """Enabling first functions in main."""
