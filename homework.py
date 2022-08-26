@@ -108,23 +108,14 @@ def main():
         logger.critical('No tokens found')
         sys.exit()
 
-    previous_messages = []
+    previous_message = None
 
-    def clear_messages(previous_messages):
-        """Cleaning memory."""
-        if len(previous_messages) > 1:
-            return previous_messages.pop(0)
-
-    def send_error_message(error):
+    def send_error_message(error, previous_message):
         """Sending details of errors occurred to telegram."""
         message = f'Сбой в работе программы: {error}'
-        if previous_messages:
-            if message != previous_messages[-1]:
-                bot.send_message(TELEGRAM_CHAT_ID, message)
-                previous_messages.append(message)
-                clear_messages(previous_messages)
-        bot.send_message(TELEGRAM_CHAT_ID, message)
-        previous_messages.append(message)
+        if message != previous_message:
+            previous_message = message
+            bot.send_message(TELEGRAM_CHAT_ID, message)
 
     def get_checked_answer(current_timestamp):
         """Enabling first functions in main."""
@@ -142,12 +133,10 @@ def main():
             response, homework = get_checked_answer(current_timestamp)
             message = parse_status(homework)
             current_timestamp = response.get('current_date')
-            if not previous_messages:
+            if message != previous_message:
+                previous_message = message
                 bot.send_message(TELEGRAM_CHAT_ID, message)
-            if message != previous_messages[-1]:
-                bot.send_message(TELEGRAM_CHAT_ID, message)
-                previous_messages.append(message)
-            clear_messages(previous_messages)
+
         except NoHomeworksError as error:
             logging.debug(error)
         except LoggedOnlyError as error:
